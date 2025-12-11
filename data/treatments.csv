@@ -1,0 +1,8 @@
+Nitrogen deficiency,50,1,10,0
+Nitrogen deficiency,100,2,20,0
+Powdery mildew,50,1,5,50
+Powdery mildew,100,2,15,150
+Fungal infection,50,1,10,100
+Fungal infection,200,2,40,400
+Pest infestation,50,1,5,20
+Pest infestation,100,2,10,50
