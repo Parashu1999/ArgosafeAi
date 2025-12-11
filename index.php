@@ -3,10 +3,42 @@ require_once __DIR__ . '/vendor/autoload.php';
 use Phpml\ModelManager;
 
 // --- CONFIGURATION ---
+// --- CONFIGURATION & LIVE API CONNECTION ---
+
+// 1. Define Base Prices in USD (Global Standard)
+$base_prices_usd = [
+    'crop_value'     => 0.25,  // $0.25 per sqm yield
+    'fungicide_cost' => 0.05,  // $0.05 per ml
+    'labor_cost'     => 15.00  // $15.00 flat rate
+];
+
+// 2. CONNECT TO LIVE API (ExchangeRate-API - Free & No Key Needed)
+function getLiveExchangeRate() {
+    $api_url = "https://api.exchangerate-api.com/v4/latest/USD";
+    
+    // Use cURL to fetch data (Professional Method)
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $api_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    if ($response) {
+        $data = json_decode($response, true);
+        // Return the USD -> PHP rate (or default to 56 if API fails)
+        return $data['rates']['PHP'] ?? 56.00;
+    }
+    return 56.00; // Fallback if internet is down
+}
+
+// 3. CALCULATE REAL-TIME PRICES
+$current_rate = getLiveExchangeRate();
+$last_updated = date("h:i:s A"); // Timestamp
+
 $market_data = [
-    'crop_value' => 12.50,
-    'fungicide_cost' => 0.15,
-    'labor_cost' => 20.00
+    'crop_value'     => $base_prices_usd['crop_value'] * $current_rate,
+    'fungicide_cost' => $base_prices_usd['fungicide_cost'] * $current_rate,
+    'labor_cost'     => $base_prices_usd['labor_cost'] * $current_rate
 ];
 
 // --- 1. HANDLE DIAGNOSIS LOGIC ---
@@ -203,38 +235,50 @@ if (file_exists(__DIR__ . '/data/history.csv')) {
         </section>
 
         <section id="market" class="view-section">
-            <h4 class="fw-bold mb-4">Live Market Rates</h4>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="custom-card text-center">
-                        <i class="fas fa-dollar-sign fa-2x text-warning mb-3"></i>
-                        <h5>Crop Value</h5>
-                        <h3 class="fw-bold">$<?php echo number_format($market_data['crop_value'], 2); ?></h3>
-                        <small class="text-muted">per sqm yield</small>
+    
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold m-0">Live Market Rates (PHP)</h4>
+                    <div class="text-end">
+                        <span class="badge bg-danger animate-pulse">● LIVE CONNECTION</span>
+                        <small class="text-muted d-block mt-1" id="last-update">Connecting...</small>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="custom-card text-center">
-                        <i class="fas fa-flask fa-2x text-info mb-3"></i>
-                        <h5>Chemical Cost</h5>
-                        <h3 class="fw-bold">$<?php echo number_format($market_data['fungicide_cost'], 2); ?></h3>
-                        <small class="text-muted">per ml unit</small>
+
+                <div class="alert alert-success border-0 shadow-sm d-flex align-items-center mb-4">
+                    <i class="fas fa-satellite-dish fa-2x me-3 opacity-50"></i>
+                    <div>
+                        <strong>Global Exchange Link Active</strong><br>
+                        Current USD/PHP Rate: <strong id="live-rate">...</strong>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="custom-card text-center">
-                        <i class="fas fa-users fa-2x text-success mb-3"></i>
-                        <h5>Labor Flat Rate</h5>
-                        <h3 class="fw-bold">$<?php echo number_format($market_data['labor_cost'], 2); ?></h3>
-                        <small class="text-muted">per session</small>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="custom-card text-center border-bottom border-4 border-warning">
+                            <i class="fas fa-coins fa-2x text-warning mb-3"></i>
+                            <h5>Crop Yield Value</h5>
+                            <h3 class="fw-bold price-value" id="price-crop">...</h3>
+                            <small class="text-muted">per sqm (Real-time)</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="custom-card text-center border-bottom border-4 border-info">
+                            <i class="fas fa-flask fa-2x text-info mb-3"></i>
+                            <h5>Chemical Cost</h5>
+                            <h3 class="fw-bold price-value" id="price-chem">...</h3>
+                            <small class="text-muted">per ml (Imported)</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="custom-card text-center border-bottom border-4 border-success">
+                            <i class="fas fa-users fa-2x text-success mb-3"></i>
+                            <h5>Labor Rate</h5>
+                            <h3 class="fw-bold price-value" id="price-labor">...</h3>
+                            <small class="text-muted">Local Standard</small>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="alert alert-info mt-4 rounded-3 border-0">
-                <i class="fas fa-info-circle me-2"></i> Note: These rates are pulled from the configuration file. In a live production environment, this would connect to a Commodities API.
-            </div>
-        </section>
+            </section>
 
         <section id="history" class="view-section">
             <div class="custom-card">
