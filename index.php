@@ -84,16 +84,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['symptom'])) {
     fclose($historyFile);
 }
 
-// --- 2. LOAD HISTORY FOR DISPLAY ---
+// --- 2. LOAD HISTORY & INTELLIGENCE LOGIC ---
 $history_log = [];
+$health_score = 100; // Start perfect
+$total_scans = 0;
+$recent_severity_sum = 0;
+$disease_counts = [];
+$total_potential_loss = 0;
+$total_projected_revenue = 10000; // Example: Start with a mock "Goal Revenue" of $10k (or ₱500k)
+
 if (file_exists(__DIR__ . '/data/history.csv')) {
     if (($h = fopen(__DIR__ . '/data/history.csv', "r")) !== FALSE) {
         while (($data = fgetcsv($h, 1000, ",")) !== FALSE) {
             $history_log[] = $data;
+            
+            // Intelligence Calculations
+            if(count($data) >= 4) {
+                $total_scans++;
+                // Analyze Disease Name for Frequency
+                $d_name = $data[2];
+                if(!isset($disease_counts[$d_name])) $disease_counts[$d_name] = 0;
+                $disease_counts[$d_name]++;
+
+                // Estimate Severity Impact (Mock logic: if ROI is high, it was severe)
+                // In a real app, we would save severity directly to CSV. 
+                // Here we assume every disease hit reduces health slightly.
+                $recent_severity_sum += 1; 
+            }
         }
         fclose($h);
     }
-    $history_log = array_reverse($history_log); // Newest first
+    $history_log = array_reverse($history_log);
+}
+
+// A. CALCULATE HEALTH SCORE
+// Logic: Lose 5 points for every disease detected, but never go below 0.
+$health_reduction = $total_scans * 5; 
+$health_score = max(0, 100 - $health_reduction);
+
+// B. SMART PATTERN INSIGHT (The "Critical Study")
+$smart_insight = "Farm looks healthy! Keep monitoring.";
+$insight_color = "success"; // green
+
+if (!empty($disease_counts)) {
+    // Find most common disease
+    arsort($disease_counts);
+    $top_disease = array_key_first($disease_counts);
+    $count = $disease_counts[$top_disease];
+    
+    // Generate Advice based on the specific disease
+    if (strpos($top_disease, 'Rot') !== false || strpos($top_disease, 'Fungal') !== false || strpos($top_disease, 'Mildew') !== false) {
+        $smart_insight = "⚠️ <strong>Critical Pattern:</strong> $count recent cases of <strong>$top_disease</strong>. This is highly correlated with <strong>excess moisture</strong>. <br><u>Recommendation:</u> Reduce irrigation frequency by 15% immediately.";
+        $insight_color = "warning";
+    } elseif (strpos($top_disease, 'Nitrogen') !== false || strpos($top_disease, 'Yellow') !== false) {
+        $smart_insight = "📉 <strong>Nutrient Alert:</strong> Repeated signs of <strong>$top_disease</strong>. Soil quality may be degrading. <br><u>Recommendation:</u> Schedule a soil N-P-K test.";
+        $insight_color = "info";
+    } elseif (strpos($top_disease, 'Pest') !== false || strpos($top_disease, 'Bugs') !== false) {
+        $smart_insight = "🦟 <strong>Outbreak Warning:</strong> Pest activity is rising ($count cases). <br><u>Recommendation:</u> Check perimeter fencing and apply preventive organic neem oil.";
+        $insight_color = "danger";
+    }
 }
 ?>
 
@@ -154,85 +203,140 @@ if (file_exists(__DIR__ . '/data/history.csv')) {
         </header>
 
         <section id="dashboard" class="view-section active">
-            <div class="row">
-                <div class="col-md-5">
-                    <div class="custom-card">
-                        <h5 class="mb-4 fw-bold">🔍 Start Diagnosis</h5>
-                        <form method="POST">
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">SYMPTOM</label>
-                                <select name="symptom" class="form-select border-0 bg-light p-3" required>
-                                    <option value="yellow leaves">Yellow Leaves</option>
-                                    <option value="stunted growth">Stunted Growth</option>
-                                    <option value="white powder">White Powder</option>
-                                    <option value="black spots">Black Spots</option>
-                                    <option value="holes in leaves">Holes in Leaves</option>
-                                    <option value="wilting">Wilting</option>
-                                </select>
-                            </div>
-                            <div class="row mb-4">
-                                <div class="col-6">
-                                    <label class="form-label text-muted small fw-bold">SIZE (SQM)</label>
-                                    <input type="number" name="farm_size" class="form-control border-0 bg-light p-3" placeholder="100" required>
+    
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="custom-card bg-white h-100 position-relative overflow-hidden">
+                            <h6 class="text-muted fw-bold">FARM HEALTH SCORE</h6>
+                            <div class="d-flex align-items-center mt-3">
+                                <div class="display-4 fw-bold <?php echo ($health_score > 70) ? 'text-success' : 'text-danger'; ?>">
+                                    <?php echo $health_score; ?>%
                                 </div>
-                                <div class="col-6">
-                                    <label class="form-label text-muted small fw-bold">SEVERITY</label>
-                                    <select name="severity" class="form-select border-0 bg-light p-3">
-                                        <option value="1">Mild</option>
-                                        <option value="2">Severe</option>
+                                <div class="ms-3">
+                                    <?php if($health_score > 80): ?>
+                                        <span class="badge bg-success">Optimal</span>
+                                    <?php elseif($health_score > 50): ?>
+                                        <span class="badge bg-warning text-dark">Risk Warning</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger">CRITICAL</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="progress mt-3" style="height: 6px;">
+                                <div class="progress-bar <?php echo ($health_score > 70) ? 'bg-success' : 'bg-danger'; ?>" role="progressbar" style="width: <?php echo $health_score; ?>%"></div>
+                            </div>
+                            <small class="text-muted mt-2 d-block">Based on last <?php echo $total_scans; ?> diagnoses.</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="custom-card h-100 border-start border-4 border-<?php echo $insight_color; ?>">
+                            <div class="d-flex align-items-start">
+                                <div class="me-3 mt-1">
+                                    <i class="fas fa-brain fa-2x text-<?php echo $insight_color; ?>"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-<?php echo $insight_color; ?> fw-bold text-uppercase">AI Strategic Insight</h6>
+                                    <p class="mb-0 fs-5"><?php echo $smart_insight; ?></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="custom-card">
+                            <h5 class="mb-4 fw-bold text-primary"><i class="fas fa-stethoscope me-2"></i>New Diagnosis</h5>
+                            <form method="POST">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">OBSERVED SYMPTOM</label>
+                                    <select name="symptom" class="form-select bg-light border-0 p-3" required>
+                                        <option value="" disabled selected>Select what you see...</option>
+                                        <option value="yellow leaves">Yellow Leaves (Chlorosis)</option>
+                                        <option value="stunted growth">Stunted Growth</option>
+                                        <option value="white powder">White Powder (Mildew)</option>
+                                        <option value="black spots">Black Spots</option>
+                                        <option value="holes in leaves">Holes in Leaves</option>
+                                        <option value="wilting">Wilting / Drooping</option>
                                     </select>
                                 </div>
-                            </div>
-                            <button type="submit" class="btn-primary-custom shadow">Analyze Farm</button>
-                        </form>
+                                <div class="row mb-4">
+                                    <div class="col-6">
+                                        <label class="form-label text-muted small fw-bold">AFFECTED AREA (sqm)</label>
+                                        <input type="number" name="farm_size" class="form-control bg-light border-0 p-3" placeholder="e.g. 50" required>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label text-muted small fw-bold">SEVERITY</label>
+                                        <select name="severity" class="form-select bg-light border-0 p-3">
+                                            <option value="1">Mild (Just Started)</option>
+                                            <option value="2">Severe (Spreading)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-primary-custom shadow py-3">
+                                    Run Diagnostics <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-md-7">
-                    <?php if ($result): ?>
-                    <div class="custom-card bg-white border-0 h-100">
-                        <div class="d-flex justify-content-between mb-4">
-                            <h5 class="fw-bold text-success">Diagnosis Complete</h5>
-                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Confident</span>
-                        </div>
-                        
-                        <div class="text-center py-3">
-                            <p class="text-muted mb-1">DETECTED ISSUE</p>
-                            <h2 class="fw-bold display-6"><?php echo $result['disease']; ?></h2>
-                        </div>
+                    <div class="col-md-7">
+                        <?php if ($result): ?>
+                        <div class="custom-card bg-white border-0 h-100 animate-fade-in">
+                            <div class="d-flex justify-content-between mb-3">
+                                <h5 class="fw-bold text-success"><i class="fas fa-check-circle me-2"></i>Analysis Complete</h5>
+                                <small class="text-muted"><?php echo date('h:i A'); ?></small>
+                            </div>
+                            
+                            <div class="p-4 bg-light rounded-3 text-center mb-4">
+                                <p class="text-muted fw-bold mb-1 text-uppercase small">Pathogen Identified</p>
+                                <h2 class="fw-bold text-dark display-6 mb-0"><?php echo $result['disease']; ?></h2>
+                            </div>
 
-                        <div class="row mt-4 g-3">
-                            <div class="col-md-6">
-                                <div class="p-3 rounded-3 bg-light">
-                                    <small class="text-muted fw-bold">TREATMENT PLAN</small>
-                                    <div class="mt-2">
-                                        <div>💧 <strong><?php echo $result['water']; ?> L</strong> Water</div>
-                                        <div>🧪 <strong><?php echo $result['fungicide']; ?> ml</strong> Fungicide</div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="border rounded-3 p-3 h-100">
+                                        <small class="text-primary fw-bold"><i class="fas fa-prescription-bottle me-1"></i> TREATMENT</small>
+                                        <ul class="list-unstyled mt-2 mb-0">
+                                            <li class="mb-2 d-flex justify-content-between">
+                                                <span>Fungicide:</span> <strong><?php echo $result['fungicide']; ?> ml</strong>
+                                            </li>
+                                            <li class="d-flex justify-content-between">
+                                                <span>Water Mix:</span> <strong><?php echo $result['water']; ?> L</strong>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="border rounded-3 p-3 h-100">
+                                        <small class="text-success fw-bold"><i class="fas fa-coins me-1"></i> FINANCIALS</small>
+                                        <ul class="list-unstyled mt-2 mb-0">
+                                            <li class="mb-2 d-flex justify-content-between text-danger">
+                                                <span>Risk Loss:</span> <strong>-$<?php echo $result['loss']; ?></strong>
+                                            </li>
+                                            <li class="d-flex justify-content-between text-success">
+                                                <span>ROI Saved:</span> <strong>+$<?php echo $result['roi']; ?></strong>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="p-3 rounded-3 bg-light">
-                                    <small class="text-muted fw-bold">FINANCIAL IMPACT</small>
-                                    <div class="mt-2">
-                                        <div class="text-danger">Loss Risk: $<?php echo $result['loss']; ?></div>
-                                        <div class="text-success fw-bold">ROI: +$<?php echo $result['roi']; ?></div>
-                                    </div>
-                                </div>
+                        </div>
+                        <?php else: ?>
+                        <div class="custom-card h-100 d-flex flex-column align-items-center justify-content-center text-center p-5">
+                            <div class="bg-light rounded-circle p-4 mb-3">
+                                <i class="fas fa-leaf fa-3x text-success opacity-50"></i>
                             </div>
+                            <h5 class="fw-bold text-secondary">Ready to Analyze</h5>
+                            <p class="text-muted" style="max-width: 300px;">
+                                Fill out the form on the left to receive a critical diagnosis, treatment plan, and financial forecast.
+                            </p>
                         </div>
+                        <?php endif; ?>
                     </div>
-                    <?php else: ?>
-                    <div class="custom-card h-100 d-flex align-items-center justify-content-center text-center text-muted">
-                        <div>
-                            <i class="fas fa-robot fa-3x mb-3 text-light"></i>
-                            <p>AI is ready. Submit a diagnosis form.</p>
-                        </div>
-                    </div>
-                    <?php endif; ?>
                 </div>
-            </div>
-        </section>
+            </section>
 
         <section id="market" class="view-section">
     
