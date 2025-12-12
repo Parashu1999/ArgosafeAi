@@ -13,6 +13,13 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) { die("DB Connection Error."); }
 
+// --- NEW: AI EARLY WARNING SYSTEM ---
+// This checks the weather and predicts disease risks before they happen
+require_once __DIR__ . '/../includes/ai_prediction.php';
+$forecaster = new DiseaseForecaster();
+$weather = $forecaster->getWeatherData();
+$prediction = $forecaster->predictRisk($weather);
+
 // 2. LOGIC: PREDICTION & TREATMENT MAP
 use Phpml\ModelManager;
 $result = null;
@@ -26,13 +33,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['symptom'])) {
         $waterModel = $modelManager->restoreFromFile(__DIR__ . '/../models/water_predictor.phpml');
         $fungicideModel = $modelManager->restoreFromFile(__DIR__ . '/../models/fungicide_predictor.phpml');
 
-        // Inputs
-        $symptom = $_POST['symptom'];
+// Inputs
+        $symptomsInput = $_POST['symptom']; 
         $farmSize = (int)$_POST['farm_size'];
         $severity = (int)$_POST['severity'];
 
+        // --- FIX 1: FORCE ARRAY ---
+        // If the form sends a single string, convert it to an array automatically
+        if (!is_array($symptomsInput)) {
+            $symptomsInput = [$symptomsInput];
+        }
+
         // Predictions
-        $disease = $classifier->predict([$symptom]);
+        // We pass the list of symptoms to the classifier
+        // Note: With your current model, it will weigh the first symptom heavily.
+        $disease = $classifier->predict([$symptomsInput]); 
+        $disease = $disease[0]; // Get the single result
+
         $water = $waterModel->predict([$farmSize, $severity]);
         $fungicide_amount = $fungicideModel->predict([$farmSize, $severity]);
 
@@ -79,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['symptom'])) {
 
         // Financials
         $loss_rate = ($severity == 2) ? 0.60 : 0.20;
-        $potential_loss = ($farmSize * $market_data['crop_value']) * $loss_rate; // market_data from config.php
+        $potential_loss = ($farmSize * $market_data['crop_value']) * $loss_rate; 
         $treatment_cost = ($fungicide_amount * $market_data['fungicide_cost']) + $market_data['labor_cost'];
         $roi = $potential_loss - $treatment_cost;
 
@@ -93,9 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['symptom'])) {
             'roi' => number_format($roi, 2)
         ];
 
+        // --- FIX 2: DATABASE SAVE ---
+        // Convert the array of symptoms back to a comma-separated string for the database
+        $symptomString = implode(', ', $symptomsInput);
+
         // Save to History
         $stmt = $pdo->prepare("INSERT INTO history (user_id, date, symptom, diagnosis, roi) VALUES (?, NOW(), ?, ?, ?)");
-        $stmt->execute([$user_id, $symptom, $disease, $result['roi']]);
+        $stmt->execute([$user_id, $symptomString, $disease, $result['roi']]);
 
     } catch (Exception $e) {
         $error_msg = "AI Model Error: " . $e->getMessage();
@@ -141,6 +162,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['symptom'])) {
     .btn-action:hover { box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6); transform: translateY(-2px); }
     .result-section { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Radar Pulse Animation for AI Warning */
+    @keyframes pulse-red {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+    }
+    .animate-pulse { animation: pulse-red 2s infinite; }
 </style>
 
 <div class="container-fluid px-0">
@@ -154,8 +183,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['symptom'])) {
                 </span>
                 <small class="opacity-75"><?php echo date('l, F j, Y'); ?></small>
             </div>
-            <h2 class="fw-bold mb-1">Hello,Farmer <?php echo htmlspecialchars($user_name); ?>! 👋</h2>
+            <h2 class="fw-bold mb-1">Hello, Farmer <?php echo htmlspecialchars($user_name); ?>! 👋</h2>
             <p class="mb-0 opacity-90">Ready to analyze your crops today?</p>
+        </div>
+    </div>
+    
+    <div class="row mb-4 animate-fade-in">
+        <div class="col-12">
+            <?php if (isset($prediction) && $prediction['status'] === 'danger'): ?>
+                <div class="card-modern border-start border-4 border-danger p-4 position-relative overflow-hidden">
+                    <div class="position-absolute top-0 end-0 p-3 opacity-10 animate-pulse">
+                        <i class="fas fa-radar fa-3x text-danger"></i>
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center">
+                        <div class="me-4 mb-2 mb-md-0 text-center">
+                            <h2 class="fw-bold text-dark m-0"><?php echo round($weather['temp']); ?>°C</h2>
+                            <small class="text-muted"><i class="fas fa-tint text-primary"></i> <?php echo $weather['humidity']; ?>% Humidity</small>
+                        </div>
+
+                        <div class="border-start ps-md-4 ps-0 border-danger border-opacity-25">
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="badge bg-danger animate-pulse me-2">AI WARNING</span>
+                                <small class="text-danger fw-bold text-uppercase">High Infection Probability</small>
+                            </div>
+                            <h4 class="fw-bold text-dark mb-1">
+                                Risk of <?php echo $prediction['data']['disease']; ?> 
+                                <span class="text-danger">(<?php echo $prediction['data']['probability']; ?>%)</span>
+                            </h4>
+                            <p class="text-muted small mb-0">
+                                <i class="fas fa-info-circle me-1"></i> 
+                                <?php echo $prediction['data']['reason']; ?>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            <?php else: ?>
+                <div class="card-modern border-start border-4 border-success p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-success bg-opacity-10 text-success rounded-circle p-3 me-3">
+                            <i class="fas fa-shield-alt fa-lg"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark m-0">System Optimal</h6>
+                            <small class="text-muted">
+                                <?php echo round($weather['temp'] ?? 30); ?>°C / <?php echo $weather['humidity'] ?? 60; ?>% Humidity. No immediate disease vectors detected.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -181,10 +259,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['symptom'])) {
                         <?php echo ($severity == 2) ? 'Severe Condition' : 'Early Stage'; ?>
                     </span>
                     <hr class="my-3 opacity-10">
-                    <div class="d-flex justify-content-between text-muted small">
-                        <span>Symptom Detected:</span>
-                        <strong class="text-dark text-capitalize"><?php echo htmlspecialchars($symptom); ?></strong>
-                    </div>
+                    <div class="mt-3">
+    <small class="text-muted d-block mb-2">Symptoms Observed:</small>
+    <div class="d-flex flex-wrap gap-2">
+        <?php foreach ($symptomsInput as $sym): ?>
+            <span class="badge bg-white border border-secondary text-secondary rounded-pill fw-normal">
+                <i class="fas fa-check-circle me-1 small"></i>
+                <?php echo htmlspecialchars($sym); ?>
+            </span>
+        <?php endforeach; ?>
+    </div>
+</div>
                 </div>
             </div>
 
@@ -193,7 +278,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['symptom'])) {
                     <div class="position-absolute top-0 end-0 p-3 opacity-10"><i class="fas fa-prescription fa-4x text-info"></i></div>
                     <div class="d-flex align-items-center mb-3">
                         <div class="bg-info bg-opacity-10 text-info rounded-circle p-2 me-3"><i class="fas fa-file-medical"></i></div>
-                        <h6 class="fw-bold m-0 text-muted text-uppercase small">Prescription</h6>
+                        <h6 class="fw-bold m-0 text-muted text-uppercase small">Primary Remedy</h6>
                     </div>
                     
                     <div class="bg-light border rounded-3 p-3 mb-3">
@@ -263,7 +348,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['symptom'])) {
                             <label class="form-label text-uppercase text-muted fw-bold small">Visual Observation</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0"><i class="fas fa-eye text-muted"></i></span>
-                                <select name="symptom" id="symptom-select" class="form-select border-start-0 bg-light py-3 ps-3" required>
+                                <select name="symptom[]" id="symptom-select" class="form-select border-start-0 bg-light py-3 ps-3" multiple="multiple" required>
                                     <option value="" disabled selected>Select what you see...</option>
                                     <optgroup label="Common Issues">
                                         <option value="yellow leaves">Yellow Leaves (General)</option>
