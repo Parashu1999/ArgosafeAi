@@ -1,4 +1,16 @@
 <?php
+// START OF INDEX.PHP
+session_start();
+
+// 1. Security Check: Redirect if not logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+// 2. Personalize the Experience
+$user_name = $_SESSION['username'] ?? 'Farmer';
+
 // Load shared configuration
 require_once __DIR__ . '/includes/config.php';
 
@@ -37,6 +49,9 @@ if (!in_array($page, $allowed_pages)) {
             <a href="index.php?page=history" class="nav-link <?php echo ($page == 'history') ? 'active' : ''; ?>">
                 <i class="fas fa-history"></i> History Log
             </a>
+            <a href="logout.php" class="nav-link text-danger mt-3">
+                <i class="fas fa-sign-out-alt"></i> Logout
+</a>
         </div>
 
         <div class="mt-auto pt-5">

@@ -91,7 +91,7 @@ if (!empty($disease_counts)) {
 
 <header class="d-flex justify-content-between align-items-center mb-5">
     <div>
-        <h2 class="fw-bold m-0">Welcome back, Farmer! 🌾</h2>
+        <h2 class="fw-bold m-0">Welcome back, Farmer <?php echo htmlspecialchars($user_name); ?>! 🌾</h2>
         <p class="text-muted">Here is your farm's health overview.</p>
     </div>
 </header>
