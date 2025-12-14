@@ -136,42 +136,37 @@ htdocs/
 
 ### 3. Install Dependencies
 Make sure Composer is installed, then run:
-
+```bash
 composer install
+``` 
 
-4. Database Setup
+### 4. Database Setup
 
-Open phpMyAdmin
-
-Create a new MySQL database
-
-Import the SQL file (if provided)
-
-Update database credentials in:
-
+- Open phpMyAdmin
+- Create a new MySQL database
+- Import the SQL file (if provided)
+- Update database credentials in:
+```bash
 includes/config.php
+``` 
 
-5. Train Machine Learning Models
+###5. Train Machine Learning Models
 
-Run the training script:
-
+- Run the training script:
+```bash
 php train.php
-
-
+``` 
 This will generate .phpml model files inside the models/ directory.
 
-6. Run the System
-
+### 6. Run the System
 Open your browser and go to:
-
 http://localhost/AgroSafeAI/
 
-Live Deployment
-
-User Login:
+#### Live Deployment
+### User Login:
 https://agrosafeai.infinityfreeapp.com/index.php
 
-Admin Login:
+### Admin Login:
 https://agrosafeai.infinityfreeapp.com/admin/login.php
 
 Presentation and Documentation
