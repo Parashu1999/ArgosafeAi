@@ -67,11 +67,17 @@ $scans = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="brand"><i class="fas fa-leaf text-success me-2"></i> AGRO<span class="text-white">SAFE</span></div>
         <small class="fw-bold text-uppercase text-light mb-4 d-block opacity-75" style="font-size:0.7rem;">Admin Panel</small>
         <div class="nav flex-column">
-            <a href="dashboard.php" class="nav-link"><i class="fas fa-grid-2"></i> Dashboard Overview</a>
-            <a href="users.php" class="nav-link"><i class="fas fa-users"></i> Farmer Management</a>
+            <a href="dashboard.php" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="users.php" class="nav-link"><i class="fas fa-users"></i> Manage Farmer</a>
             <a href="scans.php" class="nav-link active"><i class="fas fa-database"></i> Scan History</a>
             <a href="settings.php" class="nav-link"><i class="fas fa-sliders-h"></i> System Settings</a>
             <a href="security.php" class="nav-link"><i class="fas fa-lock"></i> Security & Privacy</a>
+            <li class="nav-item">
+                    <a class="nav-link" href="dataset.php">
+                        <i class="fa-solid fa-circle-nodes"></i>
+                        Dataset Manager
+                    </a>
+            </li> 
             <div style="margin-top: auto; padding-top: 100px;">
                 <a href="../logout.php?redirect=admin" class="nav-link text-danger"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
             </div>

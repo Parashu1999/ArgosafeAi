@@ -167,7 +167,7 @@ if (!in_array($page, $allowed_pages)) {
         
         <div class="nav-links">
             <a href="index.php?page=dashboard" class="nav-link <?php echo ($page == 'dashboard') ? 'active' : ''; ?>">
-                <i class="fas fa-grid-2"></i> Dashboard
+                <i class="fa-solid fa-table-cells-large"></i> Dashboard
             </a>
             
             <a href="index.php?page=market" class="nav-link <?php echo ($page == 'market') ? 'active' : ''; ?>">

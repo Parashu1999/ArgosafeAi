@@ -64,6 +64,65 @@ $current_rate = 58.50;
     .trend-up { background: #e8f5e9; color: #2ecc71; }
     .trend-down { background: #ffebee; color: #e74c3c; }
     .trend-flat { background: #f3f6f8; color: #636e72; }
+    /* 1. The Red Container */
+    .live-badge-red {
+        background: linear-gradient(135deg, #ff0000ff 0%, #cc0000 100%); /* Depth gradient */
+        color: white;
+        padding: 6px 16px;
+        border-radius: 50px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        font-size: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        
+        /* The "Spectacular" Pulse Animation */
+        animation: glowing-pulse 2s infinite;
+        box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7);
+    }
+
+    /* 2. The White Text */
+    .live-text-white {
+        color: #ffffff;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Slight drop shadow for readability */
+    }
+
+    /* 3. The Blinking White Dot */
+    .live-indicator-white {
+        width: 8px;
+        height: 8px;
+        background-color: #ffffff;
+        border-radius: 50%;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.8); /* White Glow */
+        animation: rapid-blink 1s infinite;
+    }
+
+    /* --- ANIMATIONS --- */
+
+    /* Background Pulse (Heartbeat effect) */
+    @keyframes glowing-pulse {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7);
+        }
+        70% {
+            transform: scale(1.02); /* Slight pop */
+            box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); /* Ripple fades out */
+        }
+        100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(255, 77, 77, 0);
+        }
+    }
+
+    /* Dot Blink */
+    @keyframes rapid-blink {
+        0% { opacity: 1; }
+        50% { opacity: 0.4; }
+        100% { opacity: 1; }
+    }
 </style>
 
 <div class="container-fluid px-0 animate-fade-in">
@@ -78,9 +137,10 @@ $current_rate = 58.50;
                     </span>
                     <small class="opacity-75">Last Sync: <?php echo date("h:i:s A"); ?></small>
                 </div>
-                <div class="bg-white bg-opacity-20 rounded-pill px-3 py-1 animate-pulse">
-                    <span class="text-white fw-bold small">● LIVE STREAM</span>
-                </div>
+<div class="live-badge-red">
+    <div class="live-indicator-white"></div>
+    <span class="live-text-white">LIVE STREAM</span>
+</div>
             </div>
             <h1 class="fw-bold mb-1 display-5">Market Intelligence</h1>
             <p class="mb-0 opacity-90 fs-5">Real-time agricultural rates and forex data.</p>

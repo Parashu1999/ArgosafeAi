@@ -1,29 +1,30 @@
-yellow leaves,Nitrogen deficiency
-stunted growth,Nitrogen deficiency
-white powder,Powdery mildew
-curling leaves,Powdery mildew
-black spots,Fungal infection
-leaf fall,Fungal infection
-holes in leaves,Pest infestation
-visible bugs,Pest infestation
-wilting,Root rot
-silver patches,Thrips Damage
-slime trails,Slugs or Snails
-fuzzy grey mold,Botrytis (Gray Mold)
-concentric rings,Early Blight
-water soaked spots,Bacterial Spot
-yellowing between veins,Magnesium Deficiency
-crinkled leaves,Leaf Curl Virus
-black stem base,Blackleg
-hard bumps on stems,Scale Insects
-tunneling in fruit,Fruit Fly Larvae
-skeletonized leaves,Japanese Beetle
-bronzing of leaves,Spider Mites (Advanced)
-white cottony mass,Mealybugs
-deformed fruit,Boron Deficiency
-blossom end rot,Calcium Deficiency
-galls on roots,Root Knot Nematode
-bleached spots,Sunscald
-corky scabs,Scab Disease
-oozing sap,Bacterial Canker
-mosaic pattern,Mosaic Virus"
+"Description","Disease"
+"yellow leaves","Nitrogen deficiency"
+"Stunted Growth","Nitrogen Deficiency"
+"White Powder","Powdery Mildew"
+"Curling Leaves","Powdery Mildew"
+"Black Spots","Fungal Infection"
+"Leaf Fall","Fungal Infection"
+"Holes In Leaves","Pest Infestation"
+"Visible Bugs","Pest Infestation"
+Wilting,"Root Rot"
+"Silver Patches","Thrips Damage"
+"Slime Trails","Slugs Or Snails"
+"Fuzzy Grey Mold","Botrytis (gray Mold)"
+"Concentric Rings","Early Blight"
+"Water Soaked Spots","Bacterial Spot"
+"Yellowing Between Veins","Magnesium Deficiency"
+"Crinkled Leaves","Leaf Curl Virus"
+"Black Stem Base",Blackleg
+"Hard Bumps On Stems","Scale Insects"
+"Tunneling In Fruit","Fruit Fly Larvae"
+"Skeletonized Leaves","Japanese Beetle"
+"Bronzing Of Leaves","Spider Mites (advanced)"
+"White Cottony Mass",Mealybugs
+"Deformed Fruit","Boron Deficiency"
+"Blossom End Rot","Calcium Deficiency"
+"Galls On Roots","Root Knot Nematode"
+"Bleached Spots",Sunscald
+"Corky Scabs","Scab Disease"
+"Oozing Sap","Bacterial Canker"
+"Mosaic Pattern","Mosaic Virus"""
