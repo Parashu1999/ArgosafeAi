@@ -150,7 +150,7 @@ composer install
 includes/config.php
 ``` 
 
-###5. Train Machine Learning Models
+### 5. Train Machine Learning Models
 
 - Run the training script:
 ```bash
