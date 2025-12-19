@@ -8,6 +8,15 @@
 ---
 
 ## 📌 Project Overview
+![AgroSafeAI](https://img.shields.io/badge/AgroSafeAI-Smart%20Agriculture-green?logo=leaflet&logoColor=white)
+![AI Powered](https://img.shields.io/badge/AI-Powered-blueviolet?logo=openai&logoColor=white)
+![Machine Learning](https://img.shields.io/badge/Machine%20Learning-Enabled-orange)
+![PHP](https://img.shields.io/badge/PHP-8.0+-777BB4?logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?logo=mysql&logoColor=white)
+![Real-Time API](https://img.shields.io/badge/Real--Time-APIs-brightgreen)
+![Admin Panel](https://img.shields.io/badge/Admin-Management-red)
+![Status](https://img.shields.io/badge/Status-Active-success)
+![Live Demo](https://img.shields.io/badge/Live-Demo-blue)
 
 **AgroSafeAI** is a  web-based smart agriculture decision support system designed to help farmers 👨‍🌾 and agricultural administrators make **accurate, data-driven decisions**.
 
