@@ -124,3 +124,42 @@ AgroSafeAI follows layered architecture:
 
 ```bash
 git clone https://github.com/Parashu1999/ArgosafeAi.git
+
+
+### 2. Setup XAMPP
+
+- Install XAMPP
+- Start Apache and MySQL
+- Move the project folder to:
+
+```bash
+htdocs/
+``` 
+
+### 3. Install Dependencies
+Make sure Composer is installed, then run:
+```bash
+composer install
+``` 
+
+### 4. Database Setup
+
+- Open phpMyAdmin
+- Create a new MySQL database
+- Import the SQL file (if provided)
+- Update database credentials in:
+```bash
+includes/config.php
+``` 
+
+### 5. Train Machine Learning Models
+
+- Run the training script:
+```bash
+php train.php
+``` 
+This will generate .phpml model files inside the models/ directory.
+
+### 6. Run the System
+Open your browser and go to:
+http://localhost/AgroSafeAI/
