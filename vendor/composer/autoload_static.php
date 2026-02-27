@@ -7,14 +7,14 @@ namespace Composer\Autoload;
 class ComposerStaticInit161063ac4ca51fc49e6bcb5a58487262
 {
     public static $prefixLengthsPsr4 = array (
-        'P' => 
+        'P' =>
         array (
             'Phpml\\' => 6,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Phpml\\' => 
+        'Phpml\\' =>
         array (
             0 => __DIR__ . '/..' . '/php-ai/php-ml/src',
         ),

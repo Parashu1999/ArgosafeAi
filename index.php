@@ -156,6 +156,15 @@ if (!in_array($page, $allowed_pages)) {
             70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
             100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
         }
+
+        .developer-footer {
+            text-align: center;
+            padding: 15px;
+            color: #6c757d;
+            font-size: 14px;
+            margin-left: var(--sidebar-width);
+            background: #f8f9fa;
+        }
     </style>
 </head>
 <body>
@@ -207,6 +216,20 @@ if (!in_array($page, $allowed_pages)) {
             }
         ?>
     </main>
+
+    <!-- Developer Footer -->
+
+    <!-- Developer Footer Added -->
+<div style="
+    text-align:center;
+    padding:15px;
+    color:#6c757d;
+    font-size:14px;
+    background:#f4f7fe;
+    margin-left:260px;
+">
+    © 2026 AgroSafeAI | Developed by PARASHURAMA | All Rights Reserved <i class="fas fa-heart text-danger"></i> for Sustainable Agriculture
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

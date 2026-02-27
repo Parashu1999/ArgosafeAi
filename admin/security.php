@@ -61,10 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // --- AUDIT TRAIL SIMULATION ---
 $audit_logs = [
-    ["time"=>"2025-12-13 10:05", "user"=>"admin", "action"=>"Updated Market Prices", "result"=>"Success"],
-    ["time"=>"2025-12-13 09:40", "user"=>"user_401", "action"=>"Account created", "result"=>"Success"],
-    ["time"=>"2025-12-12 23:15", "user"=>"dev_admin", "action"=>"Accessed User Table", "result"=>"Success"],
-    ["time"=>"2025-12-12 18:30", "user"=>"user_102", "action"=>"Failed login attempt (3x)", "result"=>"Warning"],
+    ["time"=>"2026-02-25 10:05", "user"=>"admin", "action"=>"Updated Market Prices", "result"=>"Success"],
+    ["time"=>"2026-02-27 09:40", "user"=>"Parashurama", "action"=>"Account created", "result"=>"Success"],
 ];
 $test_user_id = 1; 
 ?>

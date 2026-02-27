@@ -1,4 +1,4 @@
-"Description","Disease"
+Description,Disease
 "yellow leaves","Nitrogen deficiency"
 "Stunted Growth","Nitrogen Deficiency"
 "White Powder","Powdery Mildew"
@@ -28,3 +28,4 @@ Wilting,"Root Rot"
 "Corky Scabs","Scab Disease"
 "Oozing Sap","Bacterial Canker"
 "Mosaic Pattern","Mosaic Virus"""
+"Wilting despite adequate watering","Wilting despite adequate watering Root Rot"
