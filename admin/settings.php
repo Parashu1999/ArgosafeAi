@@ -19,6 +19,26 @@ try {
 // --- SET PAGE NAME FOR ACTIVE SIDEBAR LINK ---
 $page_name = 'settings';
 
+// Ensure key-value columns exist even if this table comes from an older schema.
+try {
+    $columns = [];
+    $colStmt = $pdo->query("SHOW COLUMNS FROM settings");
+    while ($col = $colStmt->fetch(PDO::FETCH_ASSOC)) {
+        if (isset($col['Field'])) {
+            $columns[] = $col['Field'];
+        }
+    }
+
+    if (!in_array('setting_key', $columns, true)) {
+        $pdo->exec("ALTER TABLE settings ADD COLUMN setting_key VARCHAR(191) NULL");
+    }
+    if (!in_array('setting_value', $columns, true)) {
+        $pdo->exec("ALTER TABLE settings ADD COLUMN setting_value TEXT NULL");
+    }
+} catch (Exception $e) {
+    // Keep page usable with defaults even if migration fails.
+}
+
 // SAVE SETTINGS (Handles Market Data and API Keys)
 $msg = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] == 'save_config') {
@@ -31,18 +51,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     ];
 
     foreach ($updates as $key => $val) {
-        // SQL: Inserts new setting or updates existing one
-        $sql = "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$key, $val, $val]);
+        // Update first; insert when key does not exist.
+        $updateSql = "UPDATE settings SET setting_value = ? WHERE setting_key = ?";
+        $updateStmt = $pdo->prepare($updateSql);
+        $updateStmt->execute([$val, $key]);
+
+        if ($updateStmt->rowCount() === 0) {
+            $insertSql = "INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)";
+            $insertStmt = $pdo->prepare($insertSql);
+            $insertStmt->execute([$key, $val]);
+        }
     }
     $msg = "System configuration updated successfully!";
 }
 
 // FETCH CURRENT SETTINGS
 $current = [];
-$stmt = $pdo->query("SELECT * FROM settings");
+$stmt = $pdo->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IS NOT NULL");
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    if (!isset($row['setting_key']) || !array_key_exists('setting_value', $row)) {
+        continue;
+    }
     $current[$row['setting_key']] = $row['setting_value'];
 }
 ?>

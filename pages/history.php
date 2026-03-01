@@ -1,8 +1,12 @@
 <?php
 // pages/history.php
+if (!function_exists('t')) {
+    require_once __DIR__ . '/../includes/language.php';
+    app_handle_language_request();
+}
 
 // 1. AUTH & CONNECTION
-if (!isset($_SESSION['user_id'])) { die("Access Denied"); }
+if (!isset($_SESSION['user_id'])) { die(t('err_access_denied')); }
 $user_id = $_SESSION['user_id'];
 
 // Database Connection

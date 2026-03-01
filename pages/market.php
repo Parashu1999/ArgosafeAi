@@ -1,8 +1,12 @@
 <?php
 // pages/market.php
+if (!function_exists('t')) {
+    require_once __DIR__ . '/../includes/language.php';
+    app_handle_language_request();
+}
 
 // 1. ACCESS CONTROL
-if (!isset($_SESSION['user_id'])) { die("Access Denied"); }
+if (!isset($_SESSION['user_id'])) { die(t('err_access_denied')); }
 
 // 2. DEFINE MARKET DATA (This fixes the 'Undefined variable' errors)
 $market_data = [

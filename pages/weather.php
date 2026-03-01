@@ -1,6 +1,10 @@
 <?php
 // pages/weather.php
-if (!isset($_SESSION['user_id'])) { die("Access Denied"); }
+if (!function_exists('t')) {
+    require_once __DIR__ . '/../includes/language.php';
+    app_handle_language_request();
+}
+if (!isset($_SESSION['user_id'])) { die(t('err_access_denied')); }
 
 // ==========================================================================
 // 1. AGRO-BRAIN INTELLIGENCE ENGINE (THE CORE LOGIC)

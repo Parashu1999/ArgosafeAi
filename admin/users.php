@@ -102,7 +102,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         <div class="alert alert-danger security-alert shadow-sm rounded-3 mb-4">
             <h6 class="fw-bold text-danger mb-1"><i class="fas fa-exclamation-triangle me-2"></i>Security Note: Data Visibility</h6>
-            <p class="small mb-0">Emails are displayed as a **Non-Reversible Hash Token** to protect privacy. Usernames are stored in plain text for essential application display/functionality (e.g., History Logs).</p>
+            <p class="small mb-0">Emails are displayed as a <strong>Non-Reversible Hash Token</strong> to protect privacy. Usernames are stored in plain text for essential application display/functionality (e.g., History Logs).</p>
         </div>
 
         <div class="card-custom">

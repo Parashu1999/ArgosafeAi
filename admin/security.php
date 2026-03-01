@@ -13,6 +13,37 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) { die("DB Error"); }
 
+// Ensure key-value settings columns exist for compatibility with older schema.
+try {
+    $columns = [];
+    $colStmt = $pdo->query("SHOW COLUMNS FROM settings");
+    while ($col = $colStmt->fetch(PDO::FETCH_ASSOC)) {
+        if (isset($col['Field'])) {
+            $columns[] = $col['Field'];
+        }
+    }
+
+    if (!in_array('setting_key', $columns, true)) {
+        $pdo->exec("ALTER TABLE settings ADD COLUMN setting_key VARCHAR(191) NULL");
+    }
+    if (!in_array('setting_value', $columns, true)) {
+        $pdo->exec("ALTER TABLE settings ADD COLUMN setting_value TEXT NULL");
+    }
+} catch (Exception $e) {
+    // Keep page loading with defaults if migration fails.
+}
+
+function upsertSetting(PDO $pdo, string $key, string $value): void
+{
+    $updateStmt = $pdo->prepare("UPDATE settings SET setting_value = ? WHERE setting_key = ?");
+    $updateStmt->execute([$value, $key]);
+
+    if ($updateStmt->rowCount() === 0) {
+        $insertStmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)");
+        $insertStmt->execute([$key, $value]);
+    }
+}
+
 // --- SET PAGE NAME FOR ACTIVE SIDEBAR LINK ---
 $page_name = 'security'; 
 $msg = "";
@@ -37,14 +68,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     } else {
         try {
             // 1. Update Username
-            $stmt = $pdo->prepare("UPDATE settings SET setting_value = ? WHERE setting_key = 'admin_username'");
-            $stmt->execute([$new_username]);
+            upsertSetting($pdo, 'admin_username', $new_username);
 
             // 2. Update Password (Only if provided)
             if (!empty($new_password)) {
                 $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("UPDATE settings SET setting_value = ? WHERE setting_key = 'admin_password_hash'");
-                $stmt->execute([$hashed_password]);
+                upsertSetting($pdo, 'admin_password_hash', $hashed_password);
                 $msg = "Admin Username and Password updated successfully!";
             } else {
                 $msg = "Admin Username updated successfully! Password unchanged.";

@@ -1,8 +1,12 @@
 <?php
 // pages/dashboard.php
+if (!function_exists('t')) {
+    require_once __DIR__ . '/../includes/language.php';
+    app_handle_language_request();
+}
 
 // 1. AUTH & CONNECTION
-if (!isset($_SESSION['user_id'])) { die("Access Denied"); }
+if (!isset($_SESSION['user_id'])) { die(t('err_access_denied')); }
 $user_id = $_SESSION['user_id'];
 $user_name = $_SESSION['username'] ?? 'Farmer';
 
@@ -308,12 +312,12 @@ if ($health_score >= 90) {
             <div class="d-flex align-items-center mb-3">
                 <div class="bg-white bg-opacity-25 rounded-pill px-3 py-1 d-inline-flex align-items-center me-3 backdrop-blur">
                     <span class="badge bg-white text-success rounded-circle p-1 me-2 animate-pulse"><i class="fas fa-circle" style="font-size:0.5rem"></i></span>
-                    <span class="text-white small fw-bold">System Online</span>
+                    <span class="text-white small fw-bold"><?php echo htmlspecialchars(t('status_system_online')); ?></span>
                 </div>
                 <span class="text-white opacity-75 small"><?php echo date('l, F j, Y'); ?></span>
             </div>
-            <h1 class="display-5 fw-bold mb-2">Hello, Farmer <?php echo htmlspecialchars($user_name); ?>.</h1>
-            <p class="fs-5 opacity-90 mb-0" style="max-width: 600px;">Your farm intelligence hub is active. Review your health metrics below or run a new diagnosis.</p>
+            <h1 class="display-5 fw-bold mb-2"><?php echo t('dashboard_hello_farmer', ['name' => htmlspecialchars($user_name)]); ?></h1>
+            <p class="fs-5 opacity-90 mb-0" style="max-width: 600px;"><?php echo htmlspecialchars(t('dashboard_hub_subtitle')); ?></p>
         </div>
     </div>
 
@@ -489,8 +493,8 @@ if ($health_score >= 90) {
                     <div class="d-flex align-items-center">
                         <div class="bg-primary text-white rounded-circle p-2 me-3"><i class="fas fa-wand-magic-sparkles"></i></div>
                         <div>
-                            <h5 class="fw-bold text-dark m-0">New Diagnosis</h5>
-                            <small class="text-muted">Configure your observation parameters below.</small>
+                            <h5 class="fw-bold text-dark m-0"><?php echo htmlspecialchars(t('dashboard_new_diagnosis')); ?></h5>
+                            <small class="text-muted"><?php echo htmlspecialchars(t('dashboard_configure_params')); ?></small>
                         </div>
                     </div>
                 </div>
@@ -499,11 +503,11 @@ if ($health_score >= 90) {
                     <form method="POST" id="diagnosisForm">
                         
                         <div class="mb-4">
-                            <label class="form-label text-uppercase">Visual Observations</label>
+                            <label class="form-label text-uppercase"><?php echo htmlspecialchars(t('dashboard_visual_observations')); ?></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-eye"></i></span>
                                 <select name="symptom[]" id="symptom-select" class="form-select border-start-0 ps-3" multiple="multiple" required>
-                                    <option value="" disabled>Select symptoms...</option>
+                                    <option value="" disabled><?php echo htmlspecialchars(t('dashboard_select_symptoms')); ?></option>
                                     <optgroup label="Common Issues">
                                         <option value="yellow leaves">Yellow Leaves (General)</option>
                                         <option value="wilting">Wilting (Drooping)</option>
@@ -537,7 +541,7 @@ if ($health_score >= 90) {
 
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label text-uppercase">Total Farm Size</label>
+                                <label class="form-label text-uppercase"><?php echo htmlspecialchars(t('dashboard_total_farm_size')); ?></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-expand"></i></span>
                                     <input type="number" name="total_land_size" class="form-control border-start-0" placeholder="e.g. 1000" required>
@@ -545,7 +549,7 @@ if ($health_score >= 90) {
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label text-uppercase">Affected Area</label>
+                                <label class="form-label text-uppercase"><?php echo htmlspecialchars(t('dashboard_affected_area')); ?></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-ruler-combined text-danger"></i></span>
                                     <input type="number" name="affected_size" class="form-control border-start-0" placeholder="e.g. 50" required>
@@ -555,21 +559,21 @@ if ($health_score >= 90) {
                         </div>
 
                         <div class="mb-5">
-                            <label class="form-label text-uppercase">Observed Severity</label>
+                            <label class="form-label text-uppercase"><?php echo htmlspecialchars(t('dashboard_observed_severity')); ?></label>
                             <div class="d-flex gap-3">
                                 <input type="radio" class="btn-check" name="severity" id="sev1" value="1" checked>
                                 <label class="btn btn-outline-success w-50 py-3 fw-bold rounded-4 border-2" for="sev1">
-                                    <i class="fas fa-shield-alt me-2"></i> Mild / Early
+                                    <i class="fas fa-shield-alt me-2"></i> <?php echo htmlspecialchars(t('dashboard_mild_early')); ?>
                                 </label>
                                 <input type="radio" class="btn-check" name="severity" id="sev2" value="2">
                                 <label class="btn btn-outline-danger w-50 py-3 fw-bold rounded-4 border-2" for="sev2">
-                                    <i class="fas fa-radiation me-2"></i> Severe / Late
+                                    <i class="fas fa-radiation me-2"></i> <?php echo htmlspecialchars(t('dashboard_severe_late')); ?>
                                 </label>
                             </div>
                         </div>
 
                         <button type="submit" class="btn-action">
-                            <i class="fas fa-microchip me-2 fa-lg"></i> Run AI Analysis
+                            <i class="fas fa-microchip me-2 fa-lg"></i> <?php echo htmlspecialchars(t('dashboard_run_ai_analysis')); ?>
                         </button>
                     </form>
                 </div>
@@ -579,7 +583,7 @@ if ($health_score >= 90) {
         <div class="col-lg-4">
             <div class="card-modern h-100">
                 <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold text-dark m-0"><i class="fas fa-chart-line text-success me-2"></i>Live Market</h5>
+                    <h5 class="fw-bold text-dark m-0"><i class="fas fa-chart-line text-success me-2"></i><?php echo htmlspecialchars(t('dashboard_live_market')); ?></h5>
                     <div class="spinner-grow text-success spinner-grow-sm" role="status"></div>
                 </div>
                 <div class="card-body p-0">
@@ -627,7 +631,7 @@ if ($health_score >= 90) {
                     
                     <div class="p-3 bg-light text-center border-top">
                         <small class="text-muted fst-italic" style="font-size: 0.7rem;">
-                            <i class="fas fa-sync-alt me-1"></i> Data synced: <?php echo date("h:i A"); ?>
+                            <i class="fas fa-sync-alt me-1"></i> <?php echo htmlspecialchars(t('dashboard_data_synced')); ?> <?php echo date("h:i A"); ?>
                         </small>
                     </div>
                 </div>

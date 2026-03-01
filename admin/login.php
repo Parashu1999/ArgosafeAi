@@ -2,6 +2,15 @@
 // admin/login.php
 session_start();
 
+// PHPMailer import (MOVED inside PHP block)
+require '../PHPMailer/src/Exception.php';
+require '../PHPMailer/src/PHPMailer.php';
+require '../PHPMailer/src/SMTP.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+
 // Database Connection
 $host = 'localhost';
 $db = 'agrosafe_db';
@@ -38,22 +47,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password']);
 
 
-    // Fetch admin user from users table
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? AND role = 'admin'");
+    // Fetch admin user from admin table
+    $stmt = $pdo->prepare("SELECT * FROM admin WHERE username = ?");
     $stmt->execute([$username]);
 
     $admin = $stmt->fetch(PDO::FETCH_ASSOC);
 
 
+    // Verify password AND check email verification
     if ($admin && password_verify($password, $admin['password'])) {
 
-        // Set session
-        $_SESSION['user_id'] = $admin['id'];
-        $_SESSION['username'] = $admin['username'];
-        $_SESSION['role'] = 'admin';
+        // OPTIONAL: check is_verified column if exists
+        if (isset($admin['is_verified']) && $admin['is_verified'] == 0) {
 
-        header("Location: dashboard.php");
-        exit();
+            $error = "Please verify your email before login.";
+
+        } else {
+
+            // Set session
+            $_SESSION['user_id'] = $admin['id'];
+            $_SESSION['username'] = $admin['username'];
+            $_SESSION['role'] = 'admin';
+
+            header("Location: dashboard.php");
+            exit();
+        }
 
     } else {
 
