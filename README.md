@@ -161,5 +161,26 @@ php train.php
 This will generate .phpml model files inside the models/ directory.
 
 ### 6. Run the System
-Open your browser and go to:
-http://localhost/AgroSafeAI/
+Open your browser and go to: http://localhost/AgroSafeAI/
+
+# AgroSafeAI Setup Guide
+
+## Requirements
+- XAMPP
+- PHP 8+
+- MySQL
+- Python (for AI model)
+
+## Setup Steps
+
+1. Clone repo
+2. Move to htdocs folder
+3. Import database/agrosafe_db.sql in phpMyAdmin
+4. Start Apache & MySQL
+5. Open:
+http://localhost/agrosafeai
+
+## Admin Login
+Username: admin
+Password: admin123
+
