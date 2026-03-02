@@ -117,6 +117,35 @@ INSERT INTO `settings` (`id`, `site_name`, `admin_email`, `smtp_host`, `smtp_use
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `subsidies`
+--
+
+CREATE TABLE `subsidies` (
+  `id` int(11) NOT NULL,
+  `scheme_name` varchar(150) NOT NULL,
+  `department` varchar(150) DEFAULT NULL,
+  `category` varchar(100) DEFAULT NULL,
+  `subsidy_amount` decimal(12,2) DEFAULT NULL,
+  `eligibility` text NOT NULL,
+  `application_url` varchar(255) DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'active',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `subsidies`
+--
+
+INSERT INTO `subsidies` (`id`, `scheme_name`, `department`, `category`, `subsidy_amount`, `eligibility`, `application_url`, `start_date`, `end_date`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'PM-KISAN Samman Nidhi', 'Ministry of Agriculture', 'Direct Income Support', 6000.00, 'Small and marginal farmers with valid land records.', 'https://pmkisan.gov.in/', '2026-01-01', '2026-12-31', 'active', '2026-03-02 09:00:00', '2026-03-02 09:00:00'),
+(2, 'Micro Irrigation Assistance', 'State Agriculture Department', 'Irrigation', 25000.00, 'Farmers adopting drip or sprinkler systems with required documentation.', 'https://agricoop.nic.in/', '2026-02-15', '2026-09-30', 'active', '2026-03-02 09:05:00', '2026-03-02 09:05:00');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -125,21 +154,31 @@ CREATE TABLE `users` (
   `username` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `mobile_number` varchar(20) DEFAULT NULL,
+  `gender` varchar(20) DEFAULT NULL,
+  `state` varchar(100) DEFAULT NULL,
+  `country` varchar(100) DEFAULT NULL,
+  `taluku` varchar(100) DEFAULT NULL,
+  `district` varchar(100) DEFAULT NULL,
+  `panchayath` varchar(100) DEFAULT NULL,
+  `pincode` varchar(12) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `role` varchar(20) NOT NULL DEFAULT 'farmer',
   `is_verified` tinyint(1) DEFAULT 0,
-  `verification_token` varchar(255) DEFAULT NULL
+  `verification_token` varchar(255) DEFAULT NULL,
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_token_expires_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`, `role`, `is_verified`, `verification_token`) VALUES
-(1, 'admin', 'snmphharaghu@gmail.com', 'admin123', '0000-00-00 00:00:00', 'admin', 0, NULL),
-(30, 'Basanagowdra', 'jbasanagoudra@gmail.com', '$2y$10$H0t80CaD1KVebB/diD7RCuJYRI7pqQV0y3L0F.4OQXVdpo3BKBIcO', '2026-03-01 16:52:16', 'user', 1, NULL),
-(32, 'Raghavendra', 'snmphharaghu@gmail.com', '$2y$10$Y/GQ8n1kONQOeVY0EoAzkOWYLeImsAHmIIW2WImnJ3mQeZ8A6lluW', '2026-03-01 17:25:51', 'user', 1, NULL),
-(33, 'Ramanna', 'basanagoudrajyoti23@gmail.com', '$2y$10$snX1WbmUbI9dvHjVNL6cMeIvKVNIounFn7jXp3kjl4gp4BfBQunIu', '2026-03-01 17:35:22', 'user', 1, NULL);
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `mobile_number`, `gender`, `state`, `country`, `taluku`, `district`, `panchayath`, `pincode`, `created_at`, `role`, `is_verified`, `verification_token`, `reset_token`, `reset_token_expires_at`) VALUES
+(1, 'admin', 'snmphharaghu@gmail.com', 'admin123', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0000-00-00 00:00:00', 'admin', 0, NULL, NULL, NULL),
+(30, 'Basanagowdra', 'jbasanagoudra@gmail.com', '$2y$10$H0t80CaD1KVebB/diD7RCuJYRI7pqQV0y3L0F.4OQXVdpo3BKBIcO', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-01 16:52:16', 'user', 1, NULL, NULL, NULL),
+(32, 'Raghavendra', 'snmphharaghu@gmail.com', '$2y$10$Y/GQ8n1kONQOeVY0EoAzkOWYLeImsAHmIIW2WImnJ3mQeZ8A6lluW', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-01 17:25:51', 'user', 1, NULL, NULL, NULL),
+(33, 'Ramanna', 'basanagoudrajyoti23@gmail.com', '$2y$10$snX1WbmUbI9dvHjVNL6cMeIvKVNIounFn7jXp3kjl4gp4BfBQunIu', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-01 17:35:22', 'user', 1, NULL, NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -169,6 +208,13 @@ ALTER TABLE `security`
 --
 ALTER TABLE `settings`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `subsidies`
+--
+ALTER TABLE `subsidies`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `status` (`status`);
 
 --
 -- Indexes for table `users`
@@ -204,6 +250,12 @@ ALTER TABLE `security`
 --
 ALTER TABLE `settings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `subsidies`
+--
+ALTER TABLE `subsidies`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `users`

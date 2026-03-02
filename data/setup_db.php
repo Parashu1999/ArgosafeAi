@@ -25,10 +25,41 @@ try {
         username VARCHAR(50) NOT NULL UNIQUE,
         email VARCHAR(100) NOT NULL,
         password VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        mobile_number VARCHAR(20) DEFAULT NULL,
+        gender VARCHAR(20) DEFAULT NULL,
+        state VARCHAR(100) DEFAULT NULL,
+        country VARCHAR(100) DEFAULT NULL,
+        taluku VARCHAR(100) DEFAULT NULL,
+        district VARCHAR(100) DEFAULT NULL,
+        panchayath VARCHAR(100) DEFAULT NULL,
+        pincode VARCHAR(12) DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        role VARCHAR(20) NOT NULL DEFAULT 'farmer',
+        is_verified TINYINT(1) DEFAULT 0,
+        verification_token VARCHAR(255) DEFAULT NULL,
+        reset_token VARCHAR(255) DEFAULT NULL,
+        reset_token_expires_at DATETIME DEFAULT NULL
     )";
     $pdo->exec($sql_users);
     echo "✅ Table `users` is ready.<br>";
+
+    // 5. Create SUBSIDIES Table
+    $sql_subsidies = "CREATE TABLE IF NOT EXISTS subsidies (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        scheme_name VARCHAR(150) NOT NULL,
+        department VARCHAR(150) DEFAULT NULL,
+        category VARCHAR(100) DEFAULT NULL,
+        subsidy_amount DECIMAL(12,2) DEFAULT NULL,
+        eligibility TEXT NOT NULL,
+        application_url VARCHAR(255) DEFAULT NULL,
+        start_date DATE DEFAULT NULL,
+        end_date DATE DEFAULT NULL,
+        status VARCHAR(20) NOT NULL DEFAULT 'active',
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )";
+    $pdo->exec($sql_subsidies);
+    echo "✅ Table `subsidies` is ready.<br>";
 
     // 5. Create HISTORY Table (With ALL new columns)
     // We define the FULL structure here so new installs get everything immediately.
@@ -56,7 +87,20 @@ try {
         "ALTER TABLE history ADD notes TEXT DEFAULT NULL",
         "ALTER TABLE history ADD severity INT DEFAULT 1",
         // Fix for the symptom column if it was too short (VARCHAR) -> change to TEXT
-        "ALTER TABLE history MODIFY symptom TEXT" 
+        "ALTER TABLE history MODIFY symptom TEXT",
+        "ALTER TABLE users ADD mobile_number VARCHAR(20) DEFAULT NULL",
+        "ALTER TABLE users ADD gender VARCHAR(20) DEFAULT NULL",
+        "ALTER TABLE users ADD state VARCHAR(100) DEFAULT NULL",
+        "ALTER TABLE users ADD country VARCHAR(100) DEFAULT NULL",
+        "ALTER TABLE users ADD taluku VARCHAR(100) DEFAULT NULL",
+        "ALTER TABLE users ADD district VARCHAR(100) DEFAULT NULL",
+        "ALTER TABLE users ADD panchayath VARCHAR(100) DEFAULT NULL",
+        "ALTER TABLE users ADD pincode VARCHAR(12) DEFAULT NULL",
+        "ALTER TABLE users ADD role VARCHAR(20) NOT NULL DEFAULT 'farmer'",
+        "ALTER TABLE users ADD is_verified TINYINT(1) DEFAULT 0",
+        "ALTER TABLE users ADD verification_token VARCHAR(255) DEFAULT NULL",
+        "ALTER TABLE users ADD reset_token VARCHAR(255) DEFAULT NULL",
+        "ALTER TABLE users ADD reset_token_expires_at DATETIME DEFAULT NULL"
     ];
 
     foreach ($updates as $sql) {

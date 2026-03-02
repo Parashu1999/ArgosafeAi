@@ -15,7 +15,7 @@ $user_name = $_SESSION['username'] ?? 'Farmer';
 
 // 3. Routing
 $page = $_GET['page'] ?? 'dashboard';
-$allowed_pages = ['dashboard', 'market', 'history', 'weather'];
+$allowed_pages = ['dashboard', 'market', 'history', 'weather', 'subsidies'];
 
 if (!in_array($page, $allowed_pages, true)) {
     $page = 'dashboard';
@@ -26,6 +26,7 @@ $pageTitles = [
     'market' => t('page_market'),
     'history' => t('page_history'),
     'weather' => t('page_weather'),
+    'subsidies' => t('page_subsidies'),
 ];
 
 $currentLang = app_get_language();
@@ -217,6 +218,10 @@ $languages = app_languages();
 
             <a href="index.php?page=weather" class="nav-link <?php echo ($page === 'weather') ? 'active' : ''; ?>">
                 <i class="fas fa-cloud-sun"></i> <?php echo htmlspecialchars(t('nav_weather')); ?>
+            </a>
+
+            <a href="index.php?page=subsidies" class="nav-link <?php echo ($page === 'subsidies') ? 'active' : ''; ?>">
+                <i class="fas fa-hand-holding-dollar"></i> <?php echo htmlspecialchars(t('nav_subsidies')); ?>
             </a>
         </div>
 

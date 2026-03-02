@@ -327,6 +327,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </a>
 
             <div style="margin-top: auto;">
+                 <a href="subsidies.php" class="nav-link">
+                    <i class="fas fa-hand-holding-dollar"></i> Manage Subsidies
+                </a>
                  <a href="settings.php" class="nav-link">
                     <i class="fas fa-cog"></i> Settings
                 </a>

@@ -2,6 +2,7 @@
 require_once 'includes/auth.php';
 $currentLang = app_get_language();
 $languages = app_languages();
+$activeForm = $activeForm ?? 'login';
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo htmlspecialchars($currentLang); ?>">
@@ -15,15 +16,14 @@ $languages = app_languages();
     <style>
         body {
             background: linear-gradient(135deg, #f4f7f6 0%, #e8f5e9 100%);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            min-height: 100vh;
+            padding: 24px 0;
         }
-        .auth-container { width: 100%; max-width: 420px; padding: 20px; }
+        .auth-container { width: 100%; max-width: 640px; padding: 20px; margin: 0 auto; }
         .auth-card { animation: fadeInUp 0.5s ease-out; }
         .hidden { display: none; }
         .brand-login { font-size: 2rem; color: var(--primary-color); font-weight: 800; text-align: center; margin-bottom: 1.5rem; }
+        .form-section-title { font-size: 0.72rem; font-weight: 700; color: #6c757d; letter-spacing: 0.08em; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -42,14 +42,16 @@ $languages = app_languages();
 
     <div class="brand-login"><i class="fas fa-leaf"></i> AgroSafeAI</div>
 
-    <?php if ($error): ?>
-        <div class="alert alert-danger border-0 shadow-sm"><i class="fas fa-exclamation-circle me-2"></i><?php echo htmlspecialchars($error); ?></div>
-    <?php endif; ?>
-    <?php if ($success): ?>
-        <div class="alert alert-success border-0 shadow-sm"><i class="fas fa-check-circle me-2"></i><?php echo htmlspecialchars($success); ?></div>
-    <?php endif; ?>
+    <div id="auth-feedback">
+        <?php if ($error): ?>
+            <div class="alert alert-danger border-0 shadow-sm"><i class="fas fa-exclamation-circle me-2"></i><?php echo htmlspecialchars($error); ?></div>
+        <?php endif; ?>
+        <?php if ($success): ?>
+            <div class="alert alert-success border-0 shadow-sm"><i class="fas fa-check-circle me-2"></i><?php echo htmlspecialchars($success); ?></div>
+        <?php endif; ?>
+    </div>
 
-    <div id="login-form" class="custom-card auth-card">
+    <div id="login-form" class="custom-card auth-card <?php echo $activeForm === 'login' ? '' : 'hidden'; ?>">
         <h4 class="fw-bold mb-1"><?php echo htmlspecialchars(t('login_welcome_back')); ?></h4>
         <p class="text-muted small mb-4"><?php echo htmlspecialchars(t('login_enter_credentials')); ?></p>
 
@@ -73,51 +75,94 @@ $languages = app_languages();
                     <input class="form-check-input" type="checkbox" name="remember" id="remember">
                     <label class="form-check-label small text-muted" for="remember"><?php echo htmlspecialchars(t('login_remember_me')); ?></label>
                 </div>
-                <a href="#" onclick="toggleForm('forgot')" class="small text-primary text-decoration-none"><?php echo htmlspecialchars(t('login_forgot_password')); ?></a>
+                <a href="#" onclick="toggleForm('forgot'); return false;" class="small text-primary text-decoration-none"><?php echo htmlspecialchars(t('login_forgot_password')); ?></a>
             </div>
             <button type="submit" name="login" class="btn-primary-custom shadow w-100 py-3 mb-3"><?php echo htmlspecialchars(t('login_button')); ?></button>
             <div class="text-center">
-                <small class="text-muted"><?php echo htmlspecialchars(t('login_no_account')); ?> <a href="#" onclick="toggleForm('register')" class="fw-bold text-primary text-decoration-none"><?php echo htmlspecialchars(t('login_register_here')); ?></a></small>
+                <small class="text-muted"><?php echo htmlspecialchars(t('login_no_account')); ?> <a href="#" onclick="toggleForm('register'); return false;" class="fw-bold text-primary text-decoration-none"><?php echo htmlspecialchars(t('login_register_here')); ?></a></small>
             </div>
         </form>
     </div>
 
-    <div id="register-form" class="custom-card auth-card hidden">
+    <div id="register-form" class="custom-card auth-card <?php echo $activeForm === 'register' ? '' : 'hidden'; ?>">
         <h4 class="fw-bold mb-1"><?php echo htmlspecialchars(t('register_join')); ?></h4>
         <p class="text-muted small mb-4"><?php echo htmlspecialchars(t('register_create_profile')); ?></p>
 
         <form method="POST">
-            <div class="mb-3">
-                <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('login_username')); ?></label>
-                <input type="text" name="username" class="form-control bg-light border-0 p-3" required>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('login_username')); ?></label>
+                    <input type="text" name="username" class="form-control bg-light border-0 p-3" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('register_email')); ?></label>
+                    <input type="email" name="email" class="form-control bg-light border-0 p-3" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('register_mobile')); ?></label>
+                    <input type="text" name="mobile_number" class="form-control bg-light border-0 p-3" maxlength="15" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('register_gender')); ?></label>
+                    <select name="gender" class="form-select bg-light border-0 p-3" required>
+                        <option value=""><?php echo htmlspecialchars(t('register_gender_select')); ?></option>
+                        <option value="Male"><?php echo htmlspecialchars(t('register_gender_male')); ?></option>
+                        <option value="Female"><?php echo htmlspecialchars(t('register_gender_female')); ?></option>
+                        <option value="Other"><?php echo htmlspecialchars(t('register_gender_other')); ?></option>
+                    </select>
+                </div>
             </div>
-            <div class="mb-3">
-                <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('register_email')); ?></label>
-                <input type="email" name="email" class="form-control bg-light border-0 p-3" required>
+
+            <div class="mt-4 mb-2 form-section-title"><?php echo htmlspecialchars(t('register_address_heading')); ?></div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('register_state')); ?></label>
+                    <input type="text" name="state" class="form-control bg-light border-0 p-3" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('register_country')); ?></label>
+                    <input type="text" name="country" class="form-control bg-light border-0 p-3" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('register_taluku')); ?></label>
+                    <input type="text" name="taluku" class="form-control bg-light border-0 p-3" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('register_district')); ?></label>
+                    <input type="text" name="district" class="form-control bg-light border-0 p-3" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('register_panchayath')); ?></label>
+                    <input type="text" name="panchayath" class="form-control bg-light border-0 p-3" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('register_pincode')); ?></label>
+                    <input type="text" name="pincode" class="form-control bg-light border-0 p-3" maxlength="12" required>
+                </div>
             </div>
-            <div class="mb-3">
+            <div class="mt-3">
                 <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('login_password')); ?></label>
                 <input type="password" name="password" class="form-control bg-light border-0 p-3" required>
             </div>
-            <button type="submit" name="register" class="btn-primary-custom shadow w-100 py-3 mb-3"><?php echo htmlspecialchars(t('register_create_account')); ?></button>
+            <button type="submit" name="register" class="btn-primary-custom shadow w-100 py-3 mt-4 mb-3"><?php echo htmlspecialchars(t('register_create_account')); ?></button>
             <div class="text-center">
-                <small class="text-muted"><?php echo htmlspecialchars(t('register_have_account')); ?> <a href="#" onclick="toggleForm('login')" class="fw-bold text-primary text-decoration-none"><?php echo htmlspecialchars(t('register_login_here')); ?></a></small>
+                <small class="text-muted"><?php echo htmlspecialchars(t('register_have_account')); ?> <a href="#" onclick="toggleForm('login'); return false;" class="fw-bold text-primary text-decoration-none"><?php echo htmlspecialchars(t('register_login_here')); ?></a></small>
             </div>
         </form>
     </div>
 
-    <div id="forgot-form" class="custom-card auth-card hidden">
+    <div id="forgot-form" class="custom-card auth-card <?php echo $activeForm === 'forgot' ? '' : 'hidden'; ?>">
         <h4 class="fw-bold mb-1"><?php echo htmlspecialchars(t('forgot_reset_password')); ?></h4>
         <p class="text-muted small mb-4"><?php echo htmlspecialchars(t('forgot_send_help')); ?></p>
 
-        <form>
+        <form method="POST">
             <div class="mb-3">
                 <label class="form-label small fw-bold text-muted"><?php echo htmlspecialchars(t('register_email')); ?></label>
-                <input type="email" class="form-control bg-light border-0 p-3" placeholder="<?php echo htmlspecialchars(t('placeholder_email')); ?>">
+                <input type="email" name="forgot_email" class="form-control bg-light border-0 p-3" placeholder="<?php echo htmlspecialchars(t('placeholder_email')); ?>" value="<?php echo htmlspecialchars((string) ($_POST['forgot_email'] ?? '')); ?>" required>
             </div>
-            <button type="button" class="btn-primary-custom shadow w-100 py-3 mb-3" onclick="alert(<?php echo json_encode(t('forgot_demo_contact_admin')); ?>)"><?php echo htmlspecialchars(t('forgot_send_link')); ?></button>
+            <button type="submit" name="forgot_password" class="btn-primary-custom shadow w-100 py-3 mb-3"><?php echo htmlspecialchars(t('forgot_send_link')); ?></button>
             <div class="text-center">
-                <a href="#" onclick="toggleForm('login')" class="small text-muted text-decoration-none"><i class="fas fa-arrow-left me-1"></i> <?php echo htmlspecialchars(t('forgot_back_login')); ?></a>
+                <a href="#" onclick="toggleForm('login'); return false;" class="small text-muted text-decoration-none"><i class="fas fa-arrow-left me-1"></i> <?php echo htmlspecialchars(t('forgot_back_login')); ?></a>
             </div>
         </form>
     </div>
@@ -126,6 +171,11 @@ $languages = app_languages();
 
 <script>
     function toggleForm(formType) {
+        const feedback = document.getElementById('auth-feedback');
+        if (feedback) {
+            feedback.classList.add('d-none');
+        }
+
         document.getElementById('login-form').classList.add('hidden');
         document.getElementById('register-form').classList.add('hidden');
         document.getElementById('forgot-form').classList.add('hidden');

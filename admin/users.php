@@ -76,6 +76,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <a href="dashboard.php" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
             <a href="users.php" class="nav-link active"><i class="fas fa-users"></i> Manage Farmer</a>
             <a href="scans.php" class="nav-link"><i class="fas fa-database"></i> Scan History</a>
+            <a href="subsidies.php" class="nav-link"><i class="fas fa-hand-holding-dollar"></i> Manage Subsidies</a>
             <a href="settings.php" class="nav-link"><i class="fas fa-sliders-h"></i> System Settings</a>
             <li class="nav-item">
                     <a class="nav-link" href="dataset.php">
